@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sec="http://www.springframework.org/security/tags">
+<ui:composition template="layout.xhtml">
+	<ui:define name="content">
+		<h:form id="empForm" style="display: flex">
+			<p:panel header="User Control Panel" id="empInfoPnl"
+					 style="width: max-content; height: max-content; margin-right: 2em;">
+				<h:panelGrid columns="1">
+					<p:outputLabel for="name" value="Username: "
+					style="word-wrap: normal"/>
+					<p:inputText id="name" size="40"
+								 value="#{usrController.usrUiTO.userName}" required="true"
+								 requiredMessage="Please enter user name "/>
+					<p:outputLabel for="usrpassword" value="Password: " />
+					<p:password id="usrpassword" size="40"
+						value="#{usrController.usrUiTO.password}" />
+					<p:outputLabel for="usremail" value="E-Mail : " />
+					<p:inputText id="usremail"
+								 value="#{usrController.usrUiTO.emailId}" size="40"
+								 required="true" label="Email Address">
+
+						<f:validator validatorId="customEmailValidator" />
+					</p:inputText>
+					<p:outputLabel for="usrrank" value="Rank " />
+
+					<p:selectOneMenu id="usrrank"
+						value="#{usrController.usrUiTO.rankUITO}"
+						style="width:150px" converter="#{rankConverter}">
+						<f:selectItems value="#{usrController.rankUiToList}"
+							var="departmentUITO" itemLabel="#{departmentUITO.rankName}"
+							itemValue="#{departmentUITO}" />
+
+					</p:selectOneMenu>
+					<h:commandButton value="#{usrController.actionLabel}"
+						action="#{usrController.doSaveInfoUsr}">
+						<f:ajax execute="empForm" render="emplist empInfoPnl" />
+					</h:commandButton>
+				</h:panelGrid>
+			</p:panel>
+			<p:panel header="User List" id="emplist">
+				<p:dataTable id="table" var="usr"
+					value="#{usrController.usrUiToList}">
+					<p:column>
+						<f:facet name="header"># Id</f:facet>
+						<h:outputText value="#{usr.userId}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">Username</f:facet>
+						<h:outputText value="#{usr.userName}" />
+					</p:column>
+					<p:column>
+						<f:facet name="header">Email </f:facet>
+						<h:outputText value="#{usr.emailId}">
+						</h:outputText>
+					</p:column>
+					<p:column>
+						<f:facet name="header">Department </f:facet>
+						<h:outputText value="#{usr.rankUITO.rankName}" />
+					</p:column>
+					<p:column id="action">
+						<f:facet name="header">Action</f:facet>
+						<h:commandLink value="Edit"
+							action="#{usrController.editUser(usr)}">
+							<f:ajax execute="action" render="empForm" />
+						</h:commandLink> /
+						  <sec:authorize access="hasRole('ROLE_ADMIN')">
+							<h:commandLink value="Delete"
+								action="#{usrController.deleteUser(usr)}">
+								<f:ajax execute="action" render="table" />
+							</h:commandLink>
+						</sec:authorize>
+					</p:column>
+
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>
